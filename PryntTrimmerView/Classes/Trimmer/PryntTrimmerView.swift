@@ -297,14 +297,53 @@ public protocol TrimmerViewDelegate: class {
 
     /// The selected start time for the current asset.
     public var startTime: CMTime? {
-        let startPosition = leftHandleView.frame.origin.x + assetPreview.contentOffset.x
-        return getTime(from: startPosition)
+        get {
+            let startPosition = leftHandleView.frame.origin.x + assetPreview.contentOffset.x
+            return getTime(from: startPosition)
+        }
+        set {
+            guard let newValue = newValue else {
+                return
+            }
+            
+            guard let leftConstraintForTime = getPosition(from: newValue) else {
+                return
+            }
+            
+            let maxConstraint = max(rightHandleView.frame.origin.x - handleWidth - minimumDistanceBetweenHandle, 0)
+            let newConstraint = min(max(0, leftConstraintForTime), maxConstraint)
+            leftConstraint?.constant = newConstraint
+            
+            layoutIfNeeded()
+            
+            seek(to: newValue)
+            updateSelectedTime(stoppedMoving: true)
+        }
     }
 
     /// The selected end time for the current asset.
     public var endTime: CMTime? {
-        let endPosition = rightHandleView.frame.origin.x + assetPreview.contentOffset.x - handleWidth
-        return getTime(from: endPosition)
+        get {
+            let endPosition = rightHandleView.frame.origin.x + assetPreview.contentOffset.x - handleWidth
+            return getTime(from: endPosition)
+        }
+        set {
+            guard let newValue = newValue else {
+                return
+            }
+            
+            guard let rightConstraintForTime = getPosition(from: newValue) else {
+                return
+            }
+            
+            let maxConstraint = min(2 * handleWidth - frame.width + leftHandleView.frame.origin.x + minimumDistanceBetweenHandle, 0)
+            let newConstraint = max(min(0, -rightConstraintForTime), maxConstraint)
+            rightConstraint?.constant = newConstraint
+            
+            layoutIfNeeded()
+            
+            updateSelectedTime(stoppedMoving: true)
+        }
     }
 
     private func updateSelectedTime(stoppedMoving: Bool) {
