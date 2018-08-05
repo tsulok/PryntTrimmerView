@@ -310,7 +310,7 @@ public protocol TrimmerViewDelegate: class {
                 return
             }
             
-            let maxConstraint = max(rightHandleView.frame.origin.x - handleWidth - minimumDistanceBetweenHandle, 0)
+            let maxConstraint = max(rightHandleView.frame.origin.x - handleWidth, 0)
             let newConstraint = min(max(0, leftConstraintForTime), maxConstraint)
             leftConstraint?.constant = newConstraint
             
@@ -336,13 +336,11 @@ public protocol TrimmerViewDelegate: class {
                 return
             }
             
-            let maxConstraint = min(2 * handleWidth - frame.width + leftHandleView.frame.origin.x + minimumDistanceBetweenHandle, 0)
-            let newConstraint = max(min(0, -rightConstraintForTime), maxConstraint)
+            let maxConstraint = min(2 * handleWidth - frame.width + leftHandleView.frame.origin.x, 0)
+            let newConstraint = max(min(0, rightConstraintForTime - assetPreview.frame.width), maxConstraint)
             rightConstraint?.constant = newConstraint
             
             layoutIfNeeded()
-            
-            updateSelectedTime(stoppedMoving: true)
         }
     }
 
